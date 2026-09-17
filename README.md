@@ -1,5 +1,6 @@
 # 睿擎工业视觉轻量化适配工具链
 
+> 仓库：https://github.com/TomekChen/ruiching-industrial-vision  
 > 2026 上海开源软件应用创新大赛 · AI+工业软件赛道  
 > 赛题：基于睿擎工业开发平台的预训练视觉模型轻量化适配与低代码部署优化
 
