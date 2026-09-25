@@ -30,13 +30,33 @@
 └── LICENSE                   # 开源许可证
 ```
 
-## 当前进度
+## 当前进度（2026-09-25）
 
-见 [DEV_LOG.md](./DEV_LOG.md)。
+| 里程碑 | 状态 |
+|---|---|
+| 板子 SMP 1.8.3 + `msh` | ✅ |
+| 官方 NCNN YOLOv3 真机出框 | ✅（`bus.jpg`，推理约 3.1 s） |
+| 无 SD 卡传模型（网线 wget → `/data`） | ✅ |
+| 工业缺陷图 / 自定义模型 | ⏳ 进行中 |
+| 采集·标注·低代码部署工具 | ⏳ 规划中（可参考阿里云智标/智眸） |
 
-## 快速开始
+详情与踩坑见 [DEV_LOG.md](./DEV_LOG.md)。
 
-（板端例程与 PC 工具就绪后，在此补充启动步骤。）
+## 快速开始（板端已验证）
+
+1. 烧录 YOLO app（RuiChing Studio 编译的 `app.img`）到 EMMC。  
+2. 串口 115200 进入 `msh`。  
+3. 电脑与板子同网段，PC 执行 `python -m http.server 8000`，板子：
+
+```text
+cd /data
+wget http://<电脑IP>:8000/mobilenetv2_yolov3.param mobilenetv2_yolov3.param
+wget http://<电脑IP>:8000/mobilenetv2_yolov3.bin mobilenetv2_yolov3.bin
+wget http://<电脑IP>:8000/你的图.jpg 你的图.jpg
+mnet_yolov3_test 你的图.jpg out.jpg
+```
+
+工业场景图推荐：**NEU-DET**（钢表面）或 **DeepPCB**（PCB），下载链接写在 `DEV_LOG.md`。
 
 ## 许可证
 
