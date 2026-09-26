@@ -244,15 +244,16 @@ FinRobot、高科 MES（业务 MES）、智屏 go-view、Waxberry、Weknora、CA
 | 单元测试 | `tests/test_prepare_neu_subset.py` 3 passed |
 | 生成子集 | `E:\yolo_files\datasets\neu-det-mini`：train **240**（6×40）+ valid **30** |
 | 训练脚本 | `python tools/train_neu_yolo.py`（默认 yolov8n） |
+| 冒烟训练 | 5 epoch / CPU → `E:\yolo_files\runs\neu-det-mini-smoke\weights\best.pt`；val **mAP50≈0.43**（刚起步，可再训 30 epoch） |
 
-### 你可执行
+### 你可执行（正式训练）
 
 ```text
 cd /d F:\projects\ruiching-industrial-vision
-python tools\train_neu_yolo.py --epochs 30 --device cpu
+python tools\train_neu_yolo.py --epochs 30 --device cpu --model yolov8n.pt
 ```
 
-有 GPU 用 `--device 0`。权重目录：`E:\yolo_files\runs\detect\`。
+有 GPU 用 `--device 0`。若报 OpenMP 双库错误，脚本已设 `KMP_DUPLICATE_LIB_OK`。
 
 ### 下一刀预告
 
