@@ -172,28 +172,59 @@ FinRobot、高科 MES（业务 MES）、智屏 go-view、Waxberry、Weknora、CA
 | **MVTec AD** | 多种工业异常（偏分割/异常） | [MVTec AD 官网](https://www.mvtec.com/company/research/datasets/mvtec-ad) | 需注册；更适合「有无缺陷」叙事，检测框要额外处理 |
 | **GC10-DET** | 金属表面缺陷 | GitHub / 学术网盘检索 `GC10-DET` | 与 NEU 同类，可作扩充 |
 
-**本周最小动作（不用先训练）：**
+**本周最小动作（不用先训练）：** 见下方「切片 A」。
 
-1. 从 NEU 或 DeepPCB 任选 **5～10 张**缺陷图。  
-2. 经 wget 传到板子 `/data`。  
-3. 仍用当前通用模型跑一遍（可能乱检）→ 截图对比「通用 vs 工业」差距 → 写进报告动机。  
-4. 用智标标注一小批 → 再谈自定义模型与量化。
+---
+
+## 2026-09-26 · 切片 A：主场景定为 NEU 钢表面
+
+### 决策
+
+- Demo 主场景：**A · NEU-DET 热轧钢表面 6 类缺陷**（DeepPCB 作备选素材，不作为第一切片）。
+- 本切片只做「工业图上板 + 通用 YOLO 试跑」，**不训练**。
+
+### 已准备
+
+| 位置 | 内容 |
+|---|---|
+| `demos/neu-det-slice-a/` | 8 张样例图 + 操作说明 |
+| `E:\yolo_files\neu_board_pack\` | 同上，供 `python -m http.server 8000` |
+| `E:\yolo_files\data\NEU-DET\` | 完整数据集（YOLO 格式） |
+
+样例覆盖：`crazing / inclusion / patches / pitted_surface / rolled-in_scale / scratches`。
+
+### 你要做的（真机）
+
+按 [demos/neu-det-slice-a/README.md](./demos/neu-det-slice-a/README.md)：上电 → wget 八张图到 `/data` → `mnet_yolov3_test` → 把串口输出回填。
+
+### 切片 A 实测（待回填）
+
+| 图片 | imread ms | detect ms | 检出摘要 | 备注 |
+|---|---|---|---|---|
+| crazing_10.jpg | | | | |
+| inclusion_10.jpg | | | | |
+| patches_10.jpg | | | | |
+| scratches_10.jpg | | | | |
+| … | | | | |
+
+> 预期：链路成功，但 COCO 通用模型对钢缺陷语义不对 → 支撑「必须做自定义工业模型」的叙事。
 
 ---
 
 ## 已知限制
 
 - 板端官方例程依赖 RuiChing Studio；本仓库沉淀工具链、适配脚本、文档与日志。
-- 当前真机 Demo 仍是 **通用 YOLOv3 + bus.jpg**；工业模型适配尚未开始。
-- 固件未编入 `ftp_server`；传文件首选 wget / 以后可考虑把模型打进 userdata 镜像。
+- 当前真机仍是 **通用 YOLOv3**；工业模型适配尚未开始（切片 A 只换图）。
+- 固件未编入 `ftp_server`；传文件首选 wget。
 - U 盘 `mount … elm` 在本 BSP 上未打通，暂不依赖 U 盘。
 
 ## 路线图（更新）
 
-1. **已完成**：串口通 → SMP 1.8.3 → 官方 YOLO 真机出框（2026-09-25）  
-2. **进行中**：换工业图试跑；整理采集/标注工具选型（对接智标/智眸思路）  
-3. **下周起**：自定义缺陷模型 → onnx/ncnn 转换 → 低代码部署小工具 → 时延/资源对比报告  
-4. **赛前一周**：开源治理、演示脚本、仓库清理  
+1. **已完成**：串口通 → SMP 1.8.3 → 官方 YOLO + bus.jpg 真机出框（2026-09-25）  
+2. **进行中 · 切片 A**：NEU 工业图上板试跑（样例已备，待真机回填）  
+3. **下一刀 · 切片 B/C**：数据集整理小工具 + 标注导出  
+4. **其后**：自定义缺陷模型 → ncnn → 低代码部署 → 性能报告  
+5. **赛前一周**：开源治理、演示脚本、仓库清理  
 
 ## 接线备忘（USB-TTL ↔ DEBUG）
 
