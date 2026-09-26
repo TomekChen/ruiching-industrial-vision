@@ -197,17 +197,19 @@ FinRobot、高科 MES（业务 MES）、智屏 go-view、Waxberry、Weknora、CA
 
 按 [demos/neu-det-slice-a/README.md](./demos/neu-det-slice-a/README.md)：上电 → wget 八张图到 `/data` → `mnet_yolov3_test` → 把串口输出回填。
 
-### 切片 A 实测（待回填）
+### 切片 A 实测（2026-09-26 ✅）
 
-| 图片 | imread ms | detect ms | 检出摘要 | 备注 |
+网络备忘：直连时只用 **e0**（`192.168.2.100`）↔ 电脑以太网 `192.168.2.10`；e1 拔线保持 `LINK_DOWN`。板→电脑不通时优先关 Windows 防火墙再测。
+
+| 图片 | imread | detect | draw | 检出摘要 |
 |---|---|---|---|---|
-| crazing_10.jpg | | | | |
-| inclusion_10.jpg | | | | |
-| patches_10.jpg | | | | |
-| scratches_10.jpg | | | | |
-| … | | | | |
+| crazing_10.jpg | 9 ms | **3050 ms** | 31 ms | **无框**（`0 0 0`） |
+| scratches_10.jpg | 5 ms | **3027 ms** | 30 ms | 误检 1 框：COCO 类 `5`，置信度仅 **0.42**（非「划痕」语义） |
+| inclusion_10.jpg | 7 ms | **3026 ms** | 23 ms | **无框** |
 
-> 预期：链路成功，但 COCO 通用模型对钢缺陷语义不对 → 支撑「必须做自定义工业模型」的叙事。
+对照：此前 `bus.jpg`（通用场景）能高置信检出；工业图上通用模型基本失效。
+
+> **切片 A 结论**：端侧链路（imread→NCNN→画框）对工业图同样可跑；**缺的是工业缺陷模型**，不是板子跑不动。下一刀做标注/训练/转 NCNN。
 
 ---
 
@@ -221,7 +223,7 @@ FinRobot、高科 MES（业务 MES）、智屏 go-view、Waxberry、Weknora、CA
 ## 路线图（更新）
 
 1. **已完成**：串口通 → SMP 1.8.3 → 官方 YOLO + bus.jpg 真机出框（2026-09-25）  
-2. **进行中 · 切片 A**：NEU 工业图上板试跑（样例已备，待真机回填）  
+2. **已完成 · 切片 A**：NEU 工业图上板试跑（通用模型漏检/误检，结论成立）  
 3. **下一刀 · 切片 B/C**：数据集整理小工具 + 标注导出  
 4. **其后**：自定义缺陷模型 → ncnn → 低代码部署 → 性能报告  
 5. **赛前一周**：开源治理、演示脚本、仓库清理  

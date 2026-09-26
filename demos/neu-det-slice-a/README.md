@@ -83,3 +83,13 @@ mnet_yolov3_test scratches_10.jpg out_scratches_10.jpg
 
 官方 MobileNetV2-YOLOv3 是 **COCO 通用目标**（人、车、公交…），**没有**钢表面 6 类缺陷。  
 因此本切片预期：链路通、时延可测，但**语义上对不上工业缺陷** → 证明必须做「自定义工业模型适配」（赛题核心）。
+
+## 真机回填（2026-09-26）
+
+| 图片 | detect | 结果 |
+|---|---|---|
+| crazing_10.jpg | ~3050 ms | 无检出 |
+| scratches_10.jpg | ~3027 ms | 误检 COCO 类 5，置信度 0.42 |
+| inclusion_10.jpg | ~3026 ms | 无检出 |
+
+切片 A **通过**（可运行信号：工业图 `execute done` + 通用模型不适用的证据）。
