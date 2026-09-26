@@ -50,3 +50,8 @@ Release/
 # Secrets
 **/credentials*
 **/secrets*
+
+*.pt
+__pycache__/
+.pytest_cache/
+

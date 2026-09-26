@@ -224,9 +224,39 @@ FinRobot、高科 MES（业务 MES）、智屏 go-view、Waxberry、Weknora、CA
 
 1. **已完成**：串口通 → SMP 1.8.3 → 官方 YOLO + bus.jpg 真机出框（2026-09-25）  
 2. **已完成 · 切片 A**：NEU 工业图上板试跑（通用模型漏检/误检，结论成立）  
-3. **下一刀 · 切片 B/C**：数据集整理小工具 + 标注导出  
-4. **其后**：自定义缺陷模型 → ncnn → 低代码部署 → 性能报告  
+3. **进行中 · 切片 B**：NEU 子集整理工具 + Ultralytics 训练入口（见 `tools/`）  
+4. **其后**：导出 ONNX→NCNN → 上板替换通用模型 → 低代码部署 → 性能报告  
 5. **赛前一周**：开源治理、演示脚本、仓库清理  
+
+---
+
+## 2026-09-26 · 切片 B：数据集工具（借用标注，不重复画框）
+
+### 决策
+
+- NEU-DET 仓库内 **已有 YOLO txt 标注**，本切片 **不自研标注 UI**（智标保留给以后自采图）。
+- 交付：`tools/prepare_neu_subset.py` 抽样均衡子集 + `tools/train_neu_yolo.py` 训练入口。
+
+### 已完成
+
+| 项 | 结果 |
+|---|---|
+| 单元测试 | `tests/test_prepare_neu_subset.py` 3 passed |
+| 生成子集 | `E:\yolo_files\datasets\neu-det-mini`：train **240**（6×40）+ valid **30** |
+| 训练脚本 | `python tools/train_neu_yolo.py`（默认 yolov8n） |
+
+### 你可执行
+
+```text
+cd /d F:\projects\ruiching-industrial-vision
+python tools\train_neu_yolo.py --epochs 30 --device cpu
+```
+
+有 GPU 用 `--device 0`。权重目录：`E:\yolo_files\runs\detect\`。
+
+### 下一刀预告
+
+`best.pt` → ONNX → NCNN（param/bin）→ wget 上板 → 对比切片 A 的漏检。
 
 ## 接线备忘（USB-TTL ↔ DEBUG）
 
