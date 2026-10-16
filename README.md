@@ -94,6 +94,26 @@ mnet_yolov3_test 你的图.jpg out.jpg
 
 工业场景图推荐：**NEU-DET**（钢表面）或 **DeepPCB**（PCB），下载链接写在 `DEV_LOG.md`。
 
+## 模型文件（百度网盘）
+
+训练权重和板上用的模型体积较大，不放进 Git 仓库。压缩包名：`ruiching-industrial-vision-models.zip`。
+
+链接：https://pan.baidu.com/s/1ZzfWyuDE7j0uQknylUKXWw?pwd=bqah  
+提取码：`bqah`
+
+| 文件 | 干什么用 |
+|---|---|
+| `neu-steel/best.pt` | 钢表面缺陷的训练结果。在电脑上继续训练、导出时用它 |
+| `neu-steel/neu_yolov8n.param` | 钢表面模型的网络结构。和下面的 `.bin` 一起拷到板子 `/data` |
+| `neu-steel/neu_yolov8n.bin` | 钢表面模型的权重。板子命令 `neu_yolov8_test` 读取这一对文件，约 12 MB，已真机检出划痕、夹杂、斑块 |
+| `deeppcb/best.pt` | PCB 缺陷的训练结果。在电脑上继续训练、导出时用它 |
+| `deeppcb/neu_yolov8n_fp32.param` | PCB 模型的网络结构（未量化）。上板前改名为 `neu_yolov8n.param` |
+| `deeppcb/neu_yolov8n_fp32.bin` | PCB 模型的权重（未量化）。上板前改名为 `neu_yolov8n.bin`。约 12 MB，同一张图约 3551 ms，检出伪铜、毛刺、鼠咬 |
+| `deeppcb/neu_yolov8n_int8.param` | PCB 模型量化后的网络结构。上板前同样改名为 `neu_yolov8n.param` |
+| `deeppcb/neu_yolov8n_int8.bin` | PCB 模型量化后的权重。约 3.1 MB，同一张图约 1395 ms，更快，但只稳定留下伪铜，毛刺和鼠咬会漏 |
+
+板子上的程序固定读取 `/data/neu_yolov8n.param` 和 `/data/neu_yolov8n.bin`。换场景时覆盖这两个文件名即可，不用改命令。PCB 模型还要把固件里的类别名换成 `open`、`short`、`mousebite`、`spur`、`copper`、`pin-hole` 后再烧录。
+
 ## 许可证
 
 本仓库代码：**Apache-2.0**（见 [`LICENSE`](./LICENSE)）。  

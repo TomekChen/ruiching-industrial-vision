@@ -46,12 +46,12 @@ struct Object
 };
 
 static const char *kClassNames[] = {
-    "crazing",
-    "inclusion",
-    "patches",
-    "pitted_surface",
-    "rolled-in_scale",
-    "scratches",
+    "open",
+    "short",
+    "mousebite",
+    "spur",
+    "copper",
+    "pin-hole",
 };
 static const int kNumClass = 6;
 static const int kTargetSize = 320;
