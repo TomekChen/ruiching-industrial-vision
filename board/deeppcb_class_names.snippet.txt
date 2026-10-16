@@ -1,0 +1,10 @@
+// DeepPCB 板端类名片段（替换 neu_yolov8.cpp 中 kClassNames）
+// 类别数仍为 6，与 NEU 相同，仅名称不同。
+static const char *kClassNames[] = {
+    "open",
+    "short",
+    "mousebite",
+    "spur",
+    "copper",
+    "pin-hole",
+};

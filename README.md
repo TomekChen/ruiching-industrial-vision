@@ -30,18 +30,53 @@
 └── LICENSE                   # 开源许可证
 ```
 
-## 当前进度（2026-09-25）
+## 当前进度（2026-09-28 · 切片 G）
 
 | 里程碑 | 状态 |
 |---|---|
 | 板子 SMP 1.8.3 + `msh` | ✅ |
-| 官方 NCNN YOLOv3 真机出框 | ✅（`bus.jpg`，推理约 3.1 s） |
-| 无 SD 卡传模型（网线 wget → `/data`） | ✅ |
-| 切片 A：NEU 工业图上板 | ✅（链路通；通用模型漏检/误检） |
-| 工业缺陷自定义模型 | ⏳ 下一刀 |
-| 采集·标注·低代码部署工具 | ⏳ 规划中（可参考阿里云智标/智眸） |
+| 官方 NCNN YOLOv3 真机出框 | ✅ |
+| 切片 A：NEU 工业图上板（通用模型） | ✅ 漏检/误检 |
+| 切片 B：GPU 训练 NEU yolov8n | ✅ mAP50≈0.67 |
+| 切片 C：ONNX/NCNN + PC 对比 | ✅ 8 图 17 框 |
+| 切片 D：板端 `neu_yolov8_test` | ✅ 真机闭环：scratches×5 / inclusion×3 / patches×2（均 ~3550 ms） |
+| 切片 E：采图+标注入口+低代码部署 | ✅ `lowcode_app.py` / `collect_images` / `lowcode_deploy` |
+| 切片 F：性能测试报告 | ✅ [`docs/performance-report.md`](./docs/performance-report.md) |
+| 切片 G：开源治理 + 演示脚本 | ✅ `LICENSE` / `demo_smoke.py` / 口播稿 |
+| 切片 H：INT8 + DeepPCB 模板 | ✅ `quantize_neu_int8` / `prepare_deeppcb_subset` |
 
-详情与踩坑见 [DEV_LOG.md](./DEV_LOG.md)。
+### 演示前一键自检
+
+```text
+python tools\demo_smoke.py
+```
+
+口播稿：[demos/neu-det-slice-g/DEMO_SCRIPT.md](./demos/neu-det-slice-g/DEMO_SCRIPT.md)
+
+### 切片 D 你要做的（编译烧录）
+
+完整步骤：[demos/neu-det-slice-d/README.md](./demos/neu-det-slice-d/README.md)
+
+```text
+1. 打开 RuiChing Studio → yolo_demo → Build
+2. 烧录 app.img
+3. wget neu_yolov8n.param/.bin + 工业图到 /data
+4. neu_yolov8_test scratches_10.jpg out.jpg
+5. 把串口输出贴回 DEV_LOG「真机回填」
+```
+
+学习源码：`board/applications/neu_yolov8.cpp`（中文注释说明与 yolov3 的 5 点差异）
+
+
+## 快速开始（低代码 · 切片 E）
+
+```text
+cd /d F:\projects\ruiching-industrial-vision
+python tools\lowcode_app.py
+```
+
+浏览器打开 http://127.0.0.1:8765/ ：采图 → 标注入口 → 生成板上命令。  
+详解：[demos/neu-det-slice-e/README.md](./demos/neu-det-slice-e/README.md)
 
 ## 快速开始（板端已验证）
 
@@ -61,4 +96,7 @@ mnet_yolov3_test 你的图.jpg out.jpg
 
 ## 许可证
 
-拟定 Apache-2.0（与 RT-Thread / 睿擎生态常见许可对齐，最终以仓库 LICENSE 为准）。
+本仓库代码：**Apache-2.0**（见 [`LICENSE`](./LICENSE)）。  
+第三方与数据说明：[`NOTICE`](./NOTICE)。  
+开源治理与维护：[`docs/opensource-governance.md`](./docs/opensource-governance.md)。  
+贡献方式：[`CONTRIBUTING.md`](./CONTRIBUTING.md)。

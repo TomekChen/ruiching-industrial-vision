@@ -1,0 +1,44 @@
+{
+  "slice": "F",
+  "title": "适配方案与性能测试报告摘要",
+  "date": "2026-09-28",
+  "hardware": "RC-Pi-3506 512MB + RuiChing APP 1.8.3 NCNN",
+  "industrial_model": {
+    "name": "neu_yolov8n",
+    "bin_bytes": 12052728,
+    "param_bytes": 16613,
+    "imgsz": 320,
+    "num_threads": 2,
+    "vulkan": false,
+    "val_mAP50": 0.67
+  },
+  "baseline_model": {
+    "name": "mobilenetv2_yolov3",
+    "bin_bytes": 7484620
+  },
+  "board_latency_ms": {
+    "slice_a_mnet_yolov3": {
+      "scratches_10": 3027,
+      "inclusion_10": 3026,
+      "note": "漏检或误检 COCO 语义"
+    },
+    "slice_d_neu_yolov8": {
+      "scratches_10": 3551,
+      "inclusion_10": 3548,
+      "patches_10": 3552,
+      "note": "工业类别正确出框"
+    },
+    "detect_overhead_ratio": 1.17
+  },
+  "board_detections": {
+    "scratches_10": {"class": "scratches", "count": 5, "max_conf": 0.781},
+    "inclusion_10": {"class": "inclusion", "count": 3, "max_conf": 0.753},
+    "patches_10": {"class": "patches", "count": 2, "max_conf": 0.895}
+  },
+  "pc_slice_c": {
+    "images": 8,
+    "total_detections": 17,
+    "source": "demos/neu-det-slice-c/summary.json"
+  },
+  "verdict": "时延同量级（约+17%），工业语义从失败变为可用；适配路径不改实时内核。"
+}

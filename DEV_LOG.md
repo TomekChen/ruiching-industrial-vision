@@ -216,7 +216,7 @@ FinRobot、高科 MES（业务 MES）、智屏 go-view、Waxberry、Weknora、CA
 ## 已知限制
 
 - 板端官方例程依赖 RuiChing Studio；本仓库沉淀工具链、适配脚本、文档与日志。
-- 当前真机仍是 **通用 YOLOv3**；工业模型适配尚未开始（切片 A 只换图）。
+- 当前真机仍是 **通用 YOLOv3**；工业 `best.pt` 已训好，待转 NCNN 上板。
 - 固件未编入 `ftp_server`；传文件首选 wget。
 - U 盘 `mount … elm` 在本 BSP 上未打通，暂不依赖 U 盘。
 
@@ -224,9 +224,154 @@ FinRobot、高科 MES（业务 MES）、智屏 go-view、Waxberry、Weknora、CA
 
 1. **已完成**：串口通 → SMP 1.8.3 → 官方 YOLO + bus.jpg 真机出框（2026-09-25）  
 2. **已完成 · 切片 A**：NEU 工业图上板试跑（通用模型漏检/误检，结论成立）  
-3. **进行中 · 切片 B**：NEU 子集整理工具 + Ultralytics 训练入口（见 `tools/`）  
-4. **其后**：导出 ONNX→NCNN → 上板替换通用模型 → 低代码部署 → 性能报告  
-5. **赛前一周**：开源治理、演示脚本、仓库清理  
+3. **已完成 · 切片 B**：NEU 子集 + 速桥云 RTX 5090 训练 30 epoch，`best.pt` 已拉回本地（mAP50≈0.67）  
+4. **已完成 · 切片 C**：ONNX/NCNN 导出 + PC 对比切片 A（8 图 17 框）；上板包已打好  
+5. **已完成 · 切片 D**：板端 `neu_yolov8_test` 真机三张工业图正确出框  
+6. **已完成 · 切片 E**：采图入库 + 智标入口 + 低代码部署清单（网页/CLI）  
+7. **已完成 · 切片 F**：性能测试报告（时延/精度/资源，见 `docs/performance-report.md`）  
+8. **已完成 · 切片 G**：开源治理（LICENSE/NOTICE/贡献/维护）+ 演示自检与口播稿  
+9. **已完成 · 切片 H**：INT8 量化材料 + DeepPCB 第二场景模板  
+10. **可选**：真机 INT8 对比数回填、DeepPCB 完整训练上板
+
+---
+
+## 2026-09-28 · 切片 H：INT8 量化 + DeepPCB 模板
+
+### 为什么做
+
+用户确认「两个都要」：量化加速对齐赛题优化项；第二场景证明工具链可复用。
+
+### INT8
+
+| 文件 | 作用 |
+|---|---|
+| `tools/int8_core.py` / `quantize_neu_int8.py` | 校准列表 + 菜谱 + 可选 ultralytics int8 |
+| `docs/int8-optimization.md` | 与板端 /255 对齐的说明 |
+| `demos/neu-det-slice-h-int8/` | 使用说明 |
+| `E:\yolo_files\exports\neu-int8\` | 本机生成的材料目录 |
+
+```text
+python tools\quantize_neu_int8.py
+```
+
+有 `ncnn2table/ncnn2bin` 时按 `INT8_RECIPE.txt` 出 int8 权重，再上板对比 FP32≈3550 ms。
+
+### DeepPCB
+
+| 文件 | 作用 |
+|---|---|
+| `tools/deeppcb_core.py` / `prepare_deeppcb_subset.py` | 原始框 → YOLO 子集 |
+| `tools/train_deeppcb_yolo.py` | 训练入口 |
+| `board/deeppcb_class_names.snippet.txt` | 板端换类名片段 |
+| `demos/deeppcb-slice/README.md` | 全流程说明 |
+
+```text
+python tools\prepare_deeppcb_subset.py --src E:\yolo_files\data\DeepPCB
+python tools\train_deeppcb_yolo.py --device 0
+```
+
+### 自测
+
+```text
+python -m pytest tests\test_slice_h.py -q
+```
+
+---
+
+## 2026-09-28 · 切片 G：开源治理 + 演示脚本
+
+### 为什么做
+
+大赛总评有 **开源治理 / 长期发展** 权重；提交前还需要「能复述、能自检」的演示路径。
+
+### 交付物
+
+| 文件 | 作用 |
+|---|---|
+| `LICENSE` / `NOTICE` | Apache-2.0 + 第三方说明 |
+| `CONTRIBUTING.md` | 贡献与自检约定 |
+| `docs/opensource-governance.md` | 治理、路线图、90 天维护 |
+| `tools/demo_smoke.py` | 演示前一键自检 |
+| `demos/neu-det-slice-g/DEMO_SCRIPT.md` | 评委口播稿 |
+
+### 怎么用
+
+```text
+python tools\demo_smoke.py
+```
+
+通过后按口播稿演示低代码页 + 板端 `neu_yolov8_test`。
+
+---
+
+## 2026-09-28 · 切片 F：适配方案与性能测试报告
+
+### 为什么做
+
+赛题四件交付物之一是 **「适配方案与性能测试报告」**。切片 A～D 已有原始数，本切片整理成可提交正文。
+
+### 交付物
+
+| 文件 | 作用 |
+|---|---|
+| `docs/performance-report.md` | 正式报告（策略 / 时延 / 精度 / 资源） |
+| `demos/neu-det-slice-f/summary.json` | 关键数字机器可读摘要 |
+| `demos/neu-det-slice-f/README.md` | 切片说明 |
+
+### 核心结论（背诵版）
+
+- 板端工业模型 detect ≈ **3550 ms**；官方通用 ≈ **3030 ms**（约 **+17%**）  
+- 语义：漏检/误检 → **scratches / inclusion / patches 正确出框**  
+- val mAP50 ≈ **0.67**；NCNN 权重 ≈ **11.5 MB**  
+- **不改实时内核**；关闭 Vulkan、`num_threads=2`
+
+### 自测
+
+```text
+python -m pytest tests\test_slice_f.py -q
+```
+
+## 2026-09-28 · 切片 E：采图 / 标注入口 + 低代码部署
+
+### 为什么做
+
+切片 D 证明「自定义工业模型能上板」。赛题还要：**数据采集与标注工具** + **低代码部署**（全流程 40% + 易用性 15%）。  
+本切片用**最小可运行工具**补上，不重造标注 UI（复用智标）。
+
+### 交付物
+
+| 文件 | 作用 |
+|---|---|
+| `tools/slice_e_core.py` | 建 YOLO 目录、导图、检配对、生成板上清单 |
+| `tools/collect_images.py` | CLI 采图 / `--check` / `--howto` |
+| `tools/lowcode_deploy.py` | 打包 + `BOARD_CHECKLIST.txt`（可 `--serve`） |
+| `tools/lowcode_app.py` | 浏览器点按钮：http://127.0.0.1:8765/ |
+| `demos/neu-det-slice-e/README.md` | 使用说明 |
+
+### 怎么用（人话）
+
+```text
+python tools\lowcode_app.py
+```
+
+打开网页 → 采图入库 → 点智标去画框 → 生成板端命令 → 复制到 msh。
+
+命令行：
+
+```text
+python tools\collect_images.py --init --root E:\yolo_files\datasets\my-plant
+python tools\lowcode_deploy.py --pc-ip 192.168.2.10
+```
+
+板子与电脑须同网段；清单默认写在 `E:\yolo_files\neu_ncnn_board_pack\BOARD_CHECKLIST.txt`。
+
+### 自测
+
+```text
+python -m pytest tests\test_slice_e.py -q
+```
+
+切片 F 报告已见上文「2026-09-28 · 切片 F」。
 
 ---
 
@@ -245,6 +390,21 @@ FinRobot、高科 MES（业务 MES）、智屏 go-view、Waxberry、Weknora、CA
 | 生成子集 | `E:\yolo_files\datasets\neu-det-mini`：train **240**（6×40）+ valid **30** |
 | 训练脚本 | `python tools/train_neu_yolo.py`（默认 yolov8n） |
 | 冒烟训练 | 5 epoch / CPU → `E:\yolo_files\runs\neu-det-mini-smoke\weights\best.pt`；val **mAP50≈0.43**（刚起步，可再训 30 epoch） |
+| **GPU 正式训练** | 速桥云 RTX 5090 · 30 epoch · yolov8n → `E:\yolo_files\runs\neu-det-mini-gpu\best.pt`；val **mAP50≈0.67**（epoch 20 最佳） |
+
+### GPU 训练（2026-09-26）
+
+- 服务器：`/workspace/apps/ruiching-neu-train/`（数据集 + venv + runs 均在持久盘）
+- 编排脚本：`tools/gpu_train_neu.py` / `tools/gpu_fix_train_pull.py`（密码用环境变量 `GPU_SSH_PASS`，勿入库）
+- 产物已拉回本地：
+
+| 文件 | 路径 |
+|---|---|
+| 最佳权重 | `E:\yolo_files\runs\neu-det-mini-gpu\best.pt` |
+| 指标 | `E:\yolo_files\runs\neu-det-mini-gpu\results.csv` |
+| 训练日志 | `E:\yolo_files\runs\neu-det-mini-gpu\train.log` |
+
+对比切片 A（通用 COCO 模型几乎检不到钢缺陷）→ 自定义 NEU 模型 **mAP50≈0.67**，下一刀转 NCNN 上板。
 
 ### 你可执行（正式训练）
 
@@ -257,7 +417,173 @@ python tools\train_neu_yolo.py --epochs 30 --device cpu --model yolov8n.pt
 
 ### 下一刀预告
 
-`best.pt` → ONNX → NCNN（param/bin）→ wget 上板 → 对比切片 A 的漏检。
+~~`best.pt` → ONNX → NCNN（param/bin）→ wget 上板 → 对比切片 A 的漏检。~~  
+→ 见下方「切片 C」。
+
+---
+
+## 2026-09-27 · 切片 C：导出 NCNN + 对比切片 A
+
+### 决策
+
+- 先完成 **PC 可运行信号**（导出 + 同图对比），不硬塞进 `mnet_yolov3_test`（架构不兼容）。
+- 板端 YOLOv8 推理命令放到切片 D（改 RuiChing C++）。
+
+### 已完成
+
+| 项 | 结果 |
+|---|---|
+| 对比推理 | `python tools/compare_slice_a.py` → 8 张图共 **17** 框；见 `demos/neu-det-slice-c/` |
+| ONNX | `E:\yolo_files\exports\neu-det-mini-gpu\best.onnx`（~11.6 MB） |
+| NCNN | `best_ncnn_model/model.ncnn.param` + `.bin`；PC 上 NCNN 推理 scratches_10 = **6** 框 |
+| 上板打包 | `E:\yolo_files\neu_ncnn_board_pack\`（`neu_yolov8n.param/.bin` + 图） |
+| 板端说明 | `board/neu_yolov8_ncnn_notes.md`（in0/out0、320、后处理差异） |
+| 测试 | `tests/test_slice_c_tools.py` 4 passed |
+
+### 对比摘要（相对切片 A）
+
+| 图 | 切片 A（板上通用） | 切片 C（NEU 模型） |
+|---|---|---|
+| inclusion_10 | 无检出 | 3× inclusion |
+| scratches_10 | 误检 COCO | 6× scratches |
+| patches_10 | — | 2× patches |
+
+### 你可执行
+
+```text
+cd /d F:\projects\ruiching-industrial-vision
+python tools\compare_slice_a.py
+python tools\export_neu_ncnn.py
+python tools\pack_neu_board.py
+```
+
+### 下一刀预告（切片 D）
+
+在 RuiChing Studio 增加 `neu_yolov8_test`，wget `neu_yolov8n.*` 上板，测时延并与切片 A 同图对比。
+
+---
+
+## 2026-09-27 · 切片 D：板端 NEU YOLOv8（分阶段学习日志）
+
+> 目标：让你看懂「每一阶段做了什么」，并留下可学习的本地代码。
+
+### 阶段 0 · 为什么不能直接换 param/bin？
+
+| 对比项 | 旧 `mnet_yolov3_test` | 新 `neu_yolov8_test` |
+|---|---|---|
+| 模型文件 | `mobilenetv2_yolov3.*` | `neu_yolov8n.*` |
+| 输入名 | `data` | `in0` |
+| 输出名 | `detection_out`（已解码框） | `out0`（xywh+类分，需 NMS） |
+| 输入尺寸 / 归一化 | 352，均值 127.5 | 320，letterbox + /255 |
+| 类别 | VOC/COCO | NEU 6 类 |
+
+**结论**：必须新写一个 msh 命令，不能「只换权重文件」。
+
+### 阶段 1 · 弄清 NCNN 输出长什么样（PC 上先验证）
+
+对本导出模型实测：`out0` 形状 **(10, 2100)** = 4 个框参数 (cx,cy,w,h) + 6 类分数；  
+2100 = 40²+20²+10²（320 输入下 stride 8/16/32）。  
+Ultralytics 导出时已把 DFL 解码融进图里，所以板端 **不必再写 16-bin Softmax**，比官方 ncnn `yolov8.cpp` 更简单。
+
+PC 上用同样解码 + NMS，与 `.pt` 预测对齐（scratches_10 约 5～6 框）。
+
+### 阶段 2 · 写可学习源码（仓库）
+
+新增：
+
+| 文件 | 你读它学什么 |
+|---|---|
+| `board/applications/neu_yolov8.cpp` | letterbox、推理、解码、NMS、画框、msh 导出（中文注释） |
+| `board/README.md` | 仓库代码 vs Studio 工程如何同步 |
+| `demos/neu-det-slice-d/README.md` | 编译烧录与上板操作清单 |
+
+关键函数（建议按顺序读）：
+
+1. `letterbox` — 为什么不能直接 resize 成正方形  
+2. `detect_neu_yolov8` — `in0`/`out0`、阈值、NMS、坐标还原  
+3. `neu_yolov8_test` — 与 `mnet_yolov3_test` 相同的「计时 + imread + detect + draw」骨架  
+4. `MSH_CMD_EXPORT` — 命令为何会出现在串口 Tab 里  
+
+### 阶段 3 · 接入本地 RuiChing 工程
+
+已执行：
+
+- 用户实际工程是 **`F:\ruiching-workspace\yolo_183`**（Studio 显示名 yolo_183），不是 `yolo_demo`  
+- 已复制 `neu_yolov8.cpp` → `yolo_183\applications\`，并改 OpenCV 头文件（与该工程 `yolov3.cpp` 一致）  
+- 已改 `yolo_183\Debug\applications\subdir.mk` 加入编译  
+
+Studio 里需 **右键工程 → Refresh** 后才能在树里看到新文件。
+
+### 阶段 4 · 你需要完成的「可运行信号」（真机）
+
+1. Studio **Build** → 烧录新 `app.img`  
+2. `msh` 里 Tab 出 `neu_yolov8_test`  
+3. wget `neu_yolov8n.param/.bin`（来自 `E:\yolo_files\neu_ncnn_board_pack\`）  
+4. 跑至少：`neu_yolov8_test scratches_10.jpg out_neu_scratches_10.jpg`  
+5. 把串口日志回填到下表  
+
+### 真机回填（2026-09-27 · yolo_183 新固件）
+
+工程：`F:\projects\ruiching-workspace\yolo_183`，命令：`neu_yolov8_test`。
+
+| 图片 | detect ms | detections | 备注 |
+|---|---|---|---|
+| scratches_10.jpg | **3551** | **5× scratches** | conf 最高 0.781；proposals=16 kept=5 |
+| inclusion_10.jpg | **3548** | **3× inclusion** | conf 0.753 / 0.620 / 0.578；proposals=23 kept=3 |
+| patches_10.jpg | **3552** | **2× patches** | conf 0.895 / 0.843；proposals=17 kept=2 |
+
+串口原文要点：
+
+```text
+# scratches
+out shape w=2100 h=10 c=1
+proposals=16 kept=5
+detect end : 3551 ms (ret=0)
+5 scratches = 0.781 / 0.614 / 0.389 / 0.286 / 0.277
+
+# inclusion
+proposals=23 kept=3
+detect end : 3548 ms (ret=0)
+1 inclusion = 0.753 / 0.620 / 0.578
+
+# patches
+proposals=17 kept=2
+detect end : 3552 ms (ret=0)
+2 patches = 0.895 / 0.843
+execute done, detections=2
+```
+
+**对比切片 A**：
+
+| 同图 | 旧 mnet_yolov3 | 新 neu_yolov8 |
+|---|---|---|
+| scratches_10 | ~3027 ms，误检 COCO 类5 | ~3551 ms，**正确 scratches×5** |
+| inclusion_10 | ~3026 ms，**无检出** | ~3548 ms，**正确 inclusion×3** |
+| patches_10 | （切片 A 未单记） | ~3552 ms，**正确 patches×2** |
+
+切片 D **闭环完成**：三张工业图均正确出框，detect 约 **3.55 s**，与旧 yolov3 时延同量级，语义从「乱报 COCO」变成「报 NEU 缺陷类」。
+
+**2026-10-16 复测**（重新接线，COM5，`scratches_10.jpg`）：detect **3497 ms**，仍为 **5× scratches**（0.781 / 0.614 / 0.389 / 0.286 / 0.277），与 09-27 结果一致。
+
+### 阶段 5 · 若编译/运行翻车时怎么查
+
+| 现象 | 可能原因 |
+|---|---|
+| 工程里没有 neu_yolov8.cpp | 未 Refresh；重新 copy；检查 subdir.mk |
+| 找不到命令 | 未烧录新固件；或 `MSH_CMD_EXPORT` 未链进 |
+| load_param failed | `/data` 下文件名必须是 `neu_yolov8n.param` |
+| out.h 不对 | 传错了旧 yolov3 权重 |
+| OOM / 很慢 | 保持源码里 `use_vulkan_compute=false` |
+
+## 本地操作手册（不翻聊天记录）
+
+已整理到：
+
+```text
+E:\yolo_files\操作手册.md
+```
+
+内容包括：Studio 打开/编译、烧录 app.img、串口 msh、关防火墙、wget 传文件、`neu_yolov8_test` / `mnet_yolov3_test`、路径一览。
 
 ## 接线备忘（USB-TTL ↔ DEBUG）
 

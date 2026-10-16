@@ -1,0 +1,177 @@
+{
+  "weights": "E:\\yolo_files\\runs\\neu-det-mini-gpu\\best.pt",
+  "imgsz": 320,
+  "conf": 0.25,
+  "images": 8,
+  "total_detections": 17,
+  "per_image": [
+    {
+      "image": "crazing_10.jpg",
+      "detections": 0,
+      "boxes": [],
+      "pred_image": "compare\\crazing_10_pred.jpg",
+      "slice_a": {
+        "detect_ms": 3050,
+        "note": "无检出"
+      }
+    },
+    {
+      "image": "inclusion_10.jpg",
+      "detections": 3,
+      "boxes": [
+        {
+          "cls": "inclusion",
+          "cls_cn": "夹杂",
+          "conf": 0.751
+        },
+        {
+          "cls": "inclusion",
+          "cls_cn": "夹杂",
+          "conf": 0.62
+        },
+        {
+          "cls": "inclusion",
+          "cls_cn": "夹杂",
+          "conf": 0.578
+        }
+      ],
+      "pred_image": "compare\\inclusion_10_pred.jpg",
+      "slice_a": {
+        "detect_ms": 3026,
+        "note": "无检出"
+      }
+    },
+    {
+      "image": "inclusion_50.jpg",
+      "detections": 2,
+      "boxes": [
+        {
+          "cls": "inclusion",
+          "cls_cn": "夹杂",
+          "conf": 0.377
+        },
+        {
+          "cls": "inclusion",
+          "cls_cn": "夹杂",
+          "conf": 0.363
+        }
+      ],
+      "pred_image": "compare\\inclusion_50_pred.jpg",
+      "slice_a": {
+        "note": "切片A未单独回填"
+      }
+    },
+    {
+      "image": "patches_10.jpg",
+      "detections": 2,
+      "boxes": [
+        {
+          "cls": "patches",
+          "cls_cn": "斑块",
+          "conf": 0.895
+        },
+        {
+          "cls": "patches",
+          "cls_cn": "斑块",
+          "conf": 0.843
+        }
+      ],
+      "pred_image": "compare\\patches_10_pred.jpg",
+      "slice_a": {
+        "note": "切片A未单独回填"
+      }
+    },
+    {
+      "image": "pitted_surface_10.jpg",
+      "detections": 1,
+      "boxes": [
+        {
+          "cls": "pitted_surface",
+          "cls_cn": "点蚀",
+          "conf": 0.297
+        }
+      ],
+      "pred_image": "compare\\pitted_surface_10_pred.jpg",
+      "slice_a": {
+        "note": "切片A未单独回填"
+      }
+    },
+    {
+      "image": "rolled-in_scale_10.jpg",
+      "detections": 2,
+      "boxes": [
+        {
+          "cls": "rolled-in_scale",
+          "cls_cn": "氧化皮压入",
+          "conf": 0.621
+        },
+        {
+          "cls": "rolled-in_scale",
+          "cls_cn": "氧化皮压入",
+          "conf": 0.273
+        }
+      ],
+      "pred_image": "compare\\rolled-in_scale_10_pred.jpg",
+      "slice_a": {
+        "note": "切片A未单独回填"
+      }
+    },
+    {
+      "image": "scratches_10.jpg",
+      "detections": 6,
+      "boxes": [
+        {
+          "cls": "scratches",
+          "cls_cn": "划痕",
+          "conf": 0.781
+        },
+        {
+          "cls": "scratches",
+          "cls_cn": "划痕",
+          "conf": 0.612
+        },
+        {
+          "cls": "scratches",
+          "cls_cn": "划痕",
+          "conf": 0.39
+        },
+        {
+          "cls": "scratches",
+          "cls_cn": "划痕",
+          "conf": 0.286
+        },
+        {
+          "cls": "scratches",
+          "cls_cn": "划痕",
+          "conf": 0.277
+        },
+        {
+          "cls": "scratches",
+          "cls_cn": "划痕",
+          "conf": 0.274
+        }
+      ],
+      "pred_image": "compare\\scratches_10_pred.jpg",
+      "slice_a": {
+        "detect_ms": 3027,
+        "note": "误检 COCO 类5 conf=0.42"
+      }
+    },
+    {
+      "image": "scratches_50.jpg",
+      "detections": 1,
+      "boxes": [
+        {
+          "cls": "scratches",
+          "cls_cn": "划痕",
+          "conf": 0.607
+        }
+      ],
+      "pred_image": "compare\\scratches_50_pred.jpg",
+      "slice_a": {
+        "note": "切片A未单独回填"
+      }
+    }
+  ],
+  "verdict": "自定义 NEU 模型在 PC 上对同款工业图有检出；切片 A 通用 COCO 模型在板上几乎漏检/误检 → 证明必须做工业模型适配。"
+}

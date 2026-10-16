@@ -6,10 +6,12 @@
 
 ## 必须交付
 
-1. 工业数据采集与标注工具  
-2. 自定义模型低代码部署工具（导入 / 转换量化 / 可视化部署 / 看结果）  
-3. 适配方案与性能测试报告（策略、时延、资源占用对比）  
-4. 可运行 Demo 工程（稳定可复现）  
+1. 工业数据采集与标注工具 → 切片 E（`collect_images` / 低代码页 + 智标入口）  
+2. 自定义模型低代码部署工具 → 切片 E（`lowcode_deploy` / `lowcode_app`）  
+3. 适配方案与性能测试报告 → 切片 F（`docs/performance-report.md`）  
+4. 可运行 Demo 工程 → 切片 A～D（`neu_yolov8_test` 真机）  
+
+附加（总评开源治理）：切片 G（`LICENSE` / `NOTICE` / `docs/opensource-governance.md` / 演示脚本）
 
 ## 明确先不做
 
